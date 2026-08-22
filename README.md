@@ -202,6 +202,10 @@ milestoneVault.approveMilestone(vaultId, 0);  // validator -- releases 1 ETH
 - **Rebasing tokens**: Not supported. Use wrapped equivalents.
 - **`block.timestamp`**: Used for stream vesting. Validator manipulation window is bounded by the Ethereum slot time (12s) -- acceptable for streams measured in days/months.
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to set up the project, run the tests, and open a pull request.
+
 ---
 
 ## License
