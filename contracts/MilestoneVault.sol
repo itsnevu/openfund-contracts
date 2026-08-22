@@ -140,7 +140,7 @@ contract MilestoneVault is ReentrancyGuard, Pausable, AccessControl {
     event VaultFunded(uint256 indexed vaultId, address indexed funder, uint256 amount);
     event MilestoneAdded(uint256 indexed vaultId, uint256 indexed milestoneIndex, uint256 amount, string descriptionURI);
     event MilestoneSubmitted(uint256 indexed vaultId, uint256 indexed milestoneIndex);
-    event MilestoneApproved(uint256 indexed vaultId, uint256 indexed milestoneIndex, uint256 amount);
+    event MilestoneApproved(uint256 indexed vaultId, uint256 indexed milestoneIndex, uint256 amount, string descriptionURI);
     event MilestoneRejected(uint256 indexed vaultId, uint256 indexed milestoneIndex);
     event MilestoneEscalated(uint256 indexed vaultId, uint256 indexed milestoneIndex);
     event DisputeResolved(uint256 indexed vaultId, uint256 indexed milestoneIndex, bool approved);
@@ -377,6 +377,7 @@ contract MilestoneVault is ReentrancyGuard, Pausable, AccessControl {
         }
 
         uint256 amount = milestones[milestoneIndex].amount;
+        string memory descriptionURI = milestones[milestoneIndex].descriptionURI;
         uint256 available = v.totalDeposited - v.totalReleased;
         if (amount > available) revert InsufficientVaultBalance(amount, available);
 
@@ -391,7 +392,7 @@ contract MilestoneVault is ReentrancyGuard, Pausable, AccessControl {
 
         _transfer(v.token, v.recipient, amount);
 
-        emit MilestoneApproved(vaultId, milestoneIndex, amount);
+        emit MilestoneApproved(vaultId, milestoneIndex, amount, descriptionURI);
     }
 
     /**
