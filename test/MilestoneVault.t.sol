@@ -209,7 +209,22 @@ contract MilestoneVaultTest is Test {
         assertEq(uint8(vault.getVault(vaultId).status), uint8(MilestoneVault.VaultStatus.Completed));
     }
 
-    function test_ApproveMilestone_RevertsIfNotValidator() public {
+    function test_ApproveMilestone_EmitsDescriptionURI() public {
+        (uint256 vaultId,) = _setupVaultWithMilestone(5 ether);
+
+        vm.prank(recipient);
+        vault.submitMilestone(vaultId, 0);
+
+        // The approval event carries the milestone's descriptionURI so off-chain
+        // indexers can reconstruct the timeline without a separate getMilestone call.
+        vm.expectEmit(true, true, false, true);
+        emit MilestoneVault.MilestoneApproved(vaultId, 0, 5 ether, "ipfs://milestone-1");
+
+        vm.prank(validator);
+        vault.approveMilestone(vaultId, 0);
+    }
+
+function test_ApproveMilestone_RevertsIfNotValidator() public {
         (uint256 vaultId,) = _setupVaultWithMilestone(5 ether);
 
         vm.prank(recipient);
