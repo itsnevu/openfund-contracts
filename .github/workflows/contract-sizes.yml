@@ -1,0 +1,31 @@
+name: Contract Sizes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  sizes:
+    name: Contract Sizes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Report contract sizes
+        run: forge build --sizes
+
+      - name: Warn when approaching the EIP-170 limit
+        run: |
+          # EIP-170 caps runtime bytecode at 24576 bytes. Warn past 90% of that; fail if over.
+          forge build --sizes --json > sizes.json
+          limit=24576; warn=$(( limit * 9 / 10 ))
+          jq -r --argjson limit "$limit" --argjson warn "$warn" 'select(type=="object" and ([.[]|.runtime_size]|all(.!=null))) | to_entries[] | if .value.runtime_size > $limit then "::error::\(.key) runtime size \(.value.runtime_size) bytes exceeds the \($limit)-byte EIP-170 limit" elif .value.runtime_size >= $warn then "::warning::\(.key) runtime size \(.value.runtime_size) bytes is within \($limit - .value.runtime_size) bytes of the \($limit)-byte EIP-170 limit" else empty end' sizes.json | tee sizes-report.txt
+          if grep -q "::error::" sizes-report.txt; then exit 1; fi
