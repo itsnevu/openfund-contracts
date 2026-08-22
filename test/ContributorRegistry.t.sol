@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {Test, console2} from "forge-std/Test.sol";
+import {Vm} from "forge-std/Vm.sol";
 import {ContributorRegistry} from "../contracts/ContributorRegistry.sol";
 
 contract ContributorRegistryTest is Test {
@@ -108,7 +109,48 @@ contract ContributorRegistryTest is Test {
         assertEq(uint8(registry.getContributor(alice, PROJECT_B).role), uint8(ContributorRegistry.Role.MAINTAINER));
     }
 
-    /*//////////////////////////////////////////////////////////////
+    function test_Register_EmitsProjectCreatedOnFirstRegistration() public {
+        vm.expectEmit(true, true, false, true);
+        emit ContributorRegistry.ProjectCreated(PROJECT_A, registrar, uint48(block.timestamp));
+
+        vm.prank(registrar);
+        registry.register(alice, PROJECT_A, ContributorRegistry.Role.CONTRIBUTOR, 5000, "");
+    }
+
+    function test_Register_ProjectCreatedEmittedOnlyOncePerProject() public {
+        // First registration creates the project.
+        vm.prank(registrar);
+        registry.register(alice, PROJECT_A, ContributorRegistry.Role.CONTRIBUTOR, 5000, "");
+
+        // A second contributor for the same project must NOT re-emit ProjectCreated.
+        vm.recordLogs();
+        vm.prank(registrar);
+        registry.register(bob, PROJECT_A, ContributorRegistry.Role.MAINTAINER, 3000, "");
+
+        Vm.Log[] memory logs = vm.getRecordedLogs();
+        bytes32 projectCreatedSig = keccak256("ProjectCreated(bytes32,address,uint48)");
+        for (uint256 i; i < logs.length; ++i) {
+            if (logs[i].topics.length > 0) {
+                assertTrue(logs[i].topics[0] != projectCreatedSig, "ProjectCreated re-emitted");
+            }
+        }
+    }
+
+    function test_Register_ProjectCreatedEmittedPerDistinctProject() public {
+        vm.startPrank(registrar);
+
+        vm.expectEmit(true, true, false, true);
+        emit ContributorRegistry.ProjectCreated(PROJECT_A, registrar, uint48(block.timestamp));
+        registry.register(alice, PROJECT_A, ContributorRegistry.Role.CONTRIBUTOR, 5000, "");
+
+        vm.expectEmit(true, true, false, true);
+        emit ContributorRegistry.ProjectCreated(PROJECT_B, registrar, uint48(block.timestamp));
+        registry.register(alice, PROJECT_B, ContributorRegistry.Role.CONTRIBUTOR, 5000, "");
+
+        vm.stopPrank();
+    }
+
+/*//////////////////////////////////////////////////////////////
                             UPDATE TESTS
     //////////////////////////////////////////////////////////////*/
 
