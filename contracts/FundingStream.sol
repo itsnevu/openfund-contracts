@@ -89,6 +89,7 @@ contract FundingStream is ReentrancyGuard, Pausable, AccessControl {
                                 EVENTS
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice Emitted when a new vesting stream is created.
     event StreamCreated(
         uint256 indexed streamId,
         address indexed sender,
@@ -98,12 +99,17 @@ contract FundingStream is ReentrancyGuard, Pausable, AccessControl {
         uint48 startTime,
         uint48 endTime
     );
+    /// @notice Emitted when additional funds are added to an existing stream.
     event StreamFunded(uint256 indexed streamId, address indexed funder, uint256 amount);
+    /// @notice Emitted when a recipient withdraws vested funds from a stream.
     event StreamWithdrawn(uint256 indexed streamId, address indexed recipient, uint256 amount);
+    /// @notice Emitted when a stream is cancelled, splitting funds between sender and recipient.
     event StreamCancelled(
         uint256 indexed streamId, uint256 returnedToSender, uint256 releasedToRecipient
     );
+    /// @notice Emitted when a stream is paused by a stream manager.
     event StreamPaused(uint256 indexed streamId);
+    /// @notice Emitted when a paused stream is resumed.
     event StreamResumed(uint256 indexed streamId);
 
     /*//////////////////////////////////////////////////////////////
