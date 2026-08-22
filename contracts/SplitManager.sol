@@ -86,14 +86,23 @@ contract SplitManager is ReentrancyGuard, Pausable, AccessControl {
                                 EVENTS
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice Emitted when a project's payee split is first defined.
     event SplitDefined(bytes32 indexed projectId, PayeeShare[] payees);
+    /// @notice Emitted when a project's payee split is replaced with a new one.
     event SplitUpdated(bytes32 indexed projectId, PayeeShare[] payees);
+    /// @notice Emitted when a project's split is deactivated and can no longer receive distributions.
     event SplitDeactivated(bytes32 indexed projectId);
+    /// @notice Emitted when incoming funds are distributed across a project's payees.
     event FundsDistributed(bytes32 indexed projectId, address indexed token, uint256 totalAmount);
+    /// @notice Emitted when a payee withdraws their accrued balance for a token.
     event FundsClaimed(address indexed payee, address indexed token, uint256 amount);
+    /// @notice Emitted when the protocol fee is deducted from a distribution.
     event ProtocolFeeCharged(bytes32 indexed projectId, address indexed token, uint256 feeAmount);
+    /// @notice Emitted when the protocol fee (in basis points) is changed.
     event ProtocolFeeUpdated(uint16 newFeeBps);
+    /// @notice Emitted when the protocol fee recipient address is changed.
     event FeeRecipientUpdated(address newFeeRecipient);
+    /// @notice Emitted when a project's fee-exempt status is set or cleared.
     event FeeExemptSet(bytes32 indexed projectId, bool exempt);
 
     /*//////////////////////////////////////////////////////////////
