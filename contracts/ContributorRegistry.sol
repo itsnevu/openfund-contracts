@@ -90,13 +90,17 @@ contract ContributorRegistry is AccessControl, Pausable {
                                 EVENTS
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice Emitted when a contributor is first registered for a project.
     event ContributorRegistered(
         address indexed contributor, bytes32 indexed projectId, Role role, uint96 weight
     );
+    /// @notice Emitted when an existing contributor's role, weight, or metadata is updated.
     event ContributorUpdated(
         address indexed contributor, bytes32 indexed projectId, Role role, uint96 weight
     );
+    /// @notice Emitted when a contributor is marked inactive for a project.
     event ContributorDeactivated(address indexed contributor, bytes32 indexed projectId);
+    /// @notice Emitted when a previously deactivated contributor is reactivated.
     event ContributorReactivated(address indexed contributor, bytes32 indexed projectId);
 
     /*//////////////////////////////////////////////////////////////
