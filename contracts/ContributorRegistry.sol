@@ -82,6 +82,8 @@ contract ContributorRegistry is AccessControl, Pausable {
 
     /// @notice Tracks whether an address has ever been registered for a project (prevents duplicates in array)
     mapping(address => mapping(bytes32 => bool)) private _registered;
+    /// @notice Tracks which projectIds have been seen, so ProjectCreated is emitted only once per project
+    mapping(bytes32 => bool) private _projectExists;
 
     /// @notice Total number of unique contributors across all projects
     uint256 public totalContributors;
@@ -90,6 +92,8 @@ contract ContributorRegistry is AccessControl, Pausable {
                                 EVENTS
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice Emitted once, the first time any contributor is registered for a given project.
+    event ProjectCreated(bytes32 indexed projectId, address indexed registrar, uint48 timestamp);
     event ContributorRegistered(
         address indexed contributor, bytes32 indexed projectId, Role role, uint96 weight
     );
@@ -176,6 +180,14 @@ contract ContributorRegistry is AccessControl, Pausable {
     ) internal {
         if (contributor == address(0)) revert InvalidAddress();
         if (projectId == bytes32(0)) revert InvalidProjectId();
+
+        // The first registration for a project emits ProjectCreated so off-chain
+        // indexers can track project lifecycle from inception. Subsequent
+        // registrations for the same project only emit ContributorRegistered.
+        if (!_projectExists[projectId]) {
+            _projectExists[projectId] = true;
+            emit ProjectCreated(projectId, msg.sender, uint48(block.timestamp));
+        }
         if (_registered[contributor][projectId]) revert AlreadyRegistered(contributor, projectId);
         if (weight == 0 || weight > 10_000) revert InvalidWeight(weight);
 
