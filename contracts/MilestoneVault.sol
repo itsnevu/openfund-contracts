@@ -129,6 +129,7 @@ contract MilestoneVault is ReentrancyGuard, Pausable, AccessControl {
                                 EVENTS
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice Emitted when a new vault is created and funded.
     event VaultCreated(
         uint256 indexed vaultId,
         address indexed funder,
@@ -137,14 +138,23 @@ contract MilestoneVault is ReentrancyGuard, Pausable, AccessControl {
         address token,
         uint256 amount
     );
+    /// @notice Emitted when additional funds are added to an existing vault.
     event VaultFunded(uint256 indexed vaultId, address indexed funder, uint256 amount);
+    /// @notice Emitted when a milestone is added to a vault.
     event MilestoneAdded(uint256 indexed vaultId, uint256 indexed milestoneIndex, uint256 amount, string descriptionURI);
+    /// @notice Emitted when the recipient submits a milestone for review.
     event MilestoneSubmitted(uint256 indexed vaultId, uint256 indexed milestoneIndex);
+    /// @notice Emitted when the validator approves a milestone and its funds are released.
     event MilestoneApproved(uint256 indexed vaultId, uint256 indexed milestoneIndex, uint256 amount);
+    /// @notice Emitted when the validator rejects a milestone and sends it back for rework.
     event MilestoneRejected(uint256 indexed vaultId, uint256 indexed milestoneIndex);
+    /// @notice Emitted when a milestone is escalated to a dispute after the dispute window.
     event MilestoneEscalated(uint256 indexed vaultId, uint256 indexed milestoneIndex);
+    /// @notice Emitted when an arbitrator resolves a disputed milestone.
     event DisputeResolved(uint256 indexed vaultId, uint256 indexed milestoneIndex, bool approved);
+    /// @notice Emitted when a vault is cancelled and unreleased funds are refunded to the funder.
     event VaultCancelled(uint256 indexed vaultId, uint256 refundAmount);
+    /// @notice Emitted when a vault's validator address is updated.
     event ValidatorUpdated(uint256 indexed vaultId, address newValidator);
 
     /*//////////////////////////////////////////////////////////////
